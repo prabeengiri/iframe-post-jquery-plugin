@@ -22,7 +22,8 @@
 (function($) {
   $.fn.IframePost = function ($params) { 
     var postData = function($iframe) {
-      if (isIframeValid($iframe)) { 
+      
+      if (isIframeValid($iframe)) {
         $src = $iframe.data('src');
         $form = submitData($src, $iframe.attr('name'));
       }
@@ -51,14 +52,13 @@
      * @throws Error
      */
     var isIframeValid = function ($iframe) {
-      
       // Check if supplied element is iframe or not.
-      if ($iframe.get(0).nodeName.toLowerCase() != "iframe") {
+      if ($iframe.prop("nodeName").toLowerCase() != "iframe") {
         throw new Error("IframePost: Supplied Element is not Iframe");
         return false;
       }
       
-      // Check if iframe has same id and name or not
+      // Check if iframe has same id and name or not.
       if($iframe.attr('id') == "" || $iframe.attr('name') == "") {
         throw new Error("IframePost: Iframe Id or Iframe name must not be empty.");
         return false;
@@ -97,13 +97,16 @@
     };
     
     /**
-     * Create Form and Append the Hidden element to be sent for the POST
+     * Create Form and Append the Hidden element to be sent for the POST.
      * 
      * @param URLParser $url
      *   URLParser Object.
      *   
      * @return jQueryObject
      *   jQuery Form Object.
+     *   
+     * @throws TypeError
+     *   When parameter is not of type Object.
      */
     var createForm = function ($url, $targetIframeName) { 
       var $form = $('<form/>', {
@@ -117,7 +120,7 @@
       var $parameters = $url.getParameters();
       
       if (typeof $parameters != "object") {
-        throw new Error("IframePost : Argument '$parameters' is not an object.");
+        throw new TypeError("IframePost : Argument '$parameters' is not an object.");
       };
       
       // Append Hidden Input Element.
@@ -146,10 +149,10 @@
     }; 
     
     /**
-     * This object Parses the URL into the sub component
+     * This object Parses the URL into the sub component.
      * 
      * @param string url
-     *   Complete URL
+     *   Complete URL.
      */
     var URLParser = function (url) { 
       
@@ -164,7 +167,7 @@
       
       this.a.href = this.url;
       
-      // Get the protocol of the URL , http:, https:, ftp:
+      // Get the protocol of the URL , http:, https:, ftp: .
       this.getProtocol = function() {
         return this.a.protocol;
       };
@@ -174,15 +177,22 @@
        * 
        * @param $url string
        *   URL provided for parsing.
+       * @return boolean
+       *   
        */
       this.isURLValid = function(url) {
-        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-        return regexp.test(s); 
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return pattern.test(url); 
       };
       
       /**
        * Get the Complete Path without query string.
-       * including protocol and hostname
+       * including protocol and hostname.
        * 
        * @return string
        *   Full URL http://test.com/test/test.php
@@ -217,7 +227,7 @@
       
       /**
        * Returns the query string as object with properties and
-       * value
+       * value.
        * 
        * @return object
        *   Object with key value pair.    
@@ -225,10 +235,10 @@
       this.getParameters = function() {
         var $parameters = this.getQueryString();
         var params = {}, queries, temp, i, l;
-        // Split into key/value pairs
+        // Split into key/value pairs.
         queries = $parameters.split("&");
         
-        // Convert the array of strings into an object
+        // Convert the array of strings into an object.
         for ( i = 0, l = queries.length; i < l; i++ ) {
           temp = queries[i].split('=');
           params[temp[0]] = temp[1];
@@ -242,20 +252,33 @@
     };
     
     
-    // Self Invoking Function 
+    /**
+     * Self Invoking Function
+     * 
+     * First Stop All Iframe from making GET request.
+     * 
+     * If only 1 Iframe , then we don't need to go to SetInterval Function.
+     * 
+     * If there is multiple iframes , then its good to load one after another
+     * as request could stop when multiple request is made from iframes at the same
+     * time.
+     * 
+     * @param $iframes JQueryObject
+     *   jQuery object that represents all matched Iframes.
+     */
     (function init(iframes) {
-      //Stop Iframe from making GET request.
+      
       stopAllIframesFromLoading(iframes);
       
       var counter = 0;
-      // If only 1 Iframe , then we don't need to go to SerInterval Function.
-      postData(iframes.eq(counter++));
+      postData(iframes.eq(counter));
       var c = setInterval(function() {
-        if (counter == iframes.length) {
+        if (counter == iframes.length-1) {
           clearInterval(c);
+          return;
         };
         postData(iframes.eq(counter++));
-      }, 1000);  
+      }, 800);  
     })(this);
         
   };  
