@@ -1,4 +1,4 @@
-IframePost
+IframePost 0.1
 ==========
 
 Use POST method to post data into iframe instead of GET
