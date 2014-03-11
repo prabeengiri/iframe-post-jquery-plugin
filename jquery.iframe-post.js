@@ -1,24 +1,30 @@
 /**
- * @file 
- *   It sends the iframe parameters as a HTTP POST instead of GET.
- * @author Prabin Giri
+ * jQuery IframePost 0.1
+ * 
+ * CopyRight 2014 Prabin Giri
+ *  
+ * Download Source: 
+ *   https://github.com/prabeengiri/IframePost/tree/master
+ * Depends:
+ *   jquery.js
+ * 
+ * Use POST method to post data into iframe instead of GET.
+ * 
+ * This is the simple Jquery plugin which lets send the POST 
+ * request on the IFrame instead of GET. This is created in order 
+ * to avoid the IE problem that limits the total characters(3926) on 
+ * the URL. It assumes that Iframe already has the 'src' attribute 
+ * with its URL value..
+ * 
  * 
  */
 
 (function($) {
-  
-  Drupal.behaviors.iframepost =  {
-      attach: function() {
-        $('.dashboard-iframe').IframePost();
-      }
-  };
-  
   $.fn.IframePost = function ($params) { 
     var postData = function($iframe) {
       if (isIframeValid($iframe)) { 
         $src = $iframe.data('src');
         $form = submitData($src, $iframe.attr('name'));
-        
       }
     };
     
@@ -119,7 +125,7 @@
         $form.append(createHiddenInput(prop, $parameters[prop]));
       };
       return $form;
-    }
+    };
     
     
     /**
@@ -165,9 +171,13 @@
       
       /**
        * We cannot proceed further, if provided URL is not valid.
+       * 
+       * @param $url string
+       *   URL provided for parsing.
        */
       this.isURLValid = function(url) {
-        return true;
+        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+        return regexp.test(s); 
       };
       
       /**
@@ -243,10 +253,10 @@
       var c = setInterval(function() {
         if (counter == iframes.length) {
           clearInterval(c);
-        }
+        };
         postData(iframes.eq(counter++));
       }, 1000);  
     })(this);
         
-  };
+  };  
 })(jQuery);
