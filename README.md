@@ -8,8 +8,9 @@ to avoid the IE problem that limits the total characters(3926) on the URL. It as
 'src' attribute with its URL value..
 
 
-###Usage: 
+##Usage: 
 ```javacript
   $('#iframe').IframePost();
 
   // Imporant: Throws error if Iframe does not have src or empty or invalid source attribute
+```
