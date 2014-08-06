@@ -344,6 +344,10 @@
       }
       var callerElement = event.target || event.srcElement;
       
+      // When we post data through this script, 
+      // It invokes the iframe onload event and hence 
+      // goes into recursion, therefore a flag class 
+      // is used to prevent this.
       $iframe = $(callerElement);
       if (!$iframe.hasClass(postDataProgressIdentifierClass)) {
         postData($iframe);
